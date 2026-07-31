@@ -1,0 +1,1016 @@
+<title>뽀삐 AI 연구소 — 초등 3·4학년 AI 캠프</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* ── 토큰 ─────────────────────────────────────────── */
+:root{
+  --bg:#EDF1E8;
+  --grid:rgba(21,25,31,.075);
+  --surface:#FFFFFF;
+  --surface-2:#F4F7F0;
+  --fg:#15191F;
+  --muted:#5E6A62;
+  --stroke:#15191F;
+  --stroke-w:3px;
+  --shadow:#15191F;
+  --lime:#C7F03A;
+  --lime-deep:#9CC217;
+  --tang:#FF7A2F;
+  --sky:#35A7F2;
+  --rose:#FF4A66;
+  --gold:#FFC53D;
+  --on-accent:#15191F;
+  --r-card:22px;
+  --r-btn:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#11151A;
+    --grid:rgba(234,240,226,.06);
+    --surface:#1B222A;
+    --surface-2:#222A33;
+    --fg:#EAF0E2;
+    --muted:#9AA79D;
+    --stroke:#3D4A55;
+    --shadow:#05070A;
+    --lime:#C7F03A;
+    --lime-deep:#A8D129;
+    --tang:#FF8B47;
+    --sky:#55B6F7;
+    --rose:#FF6379;
+    --gold:#FFD05C;
+    --on-accent:#11151A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151A; --grid:rgba(234,240,226,.06); --surface:#1B222A; --surface-2:#222A33;
+  --fg:#EAF0E2; --muted:#9AA79D; --stroke:#3D4A55; --shadow:#05070A;
+  --lime:#C7F03A; --lime-deep:#A8D129; --tang:#FF8B47; --sky:#55B6F7;
+  --rose:#FF6379; --gold:#FFD05C; --on-accent:#11151A;
+}
+:root[data-theme="light"]{
+  --bg:#EDF1E8; --grid:rgba(21,25,31,.075); --surface:#FFFFFF; --surface-2:#F4F7F0;
+  --fg:#15191F; --muted:#5E6A62; --stroke:#15191F; --shadow:#15191F;
+  --lime:#C7F03A; --lime-deep:#9CC217; --tang:#FF7A2F; --sky:#35A7F2;
+  --rose:#FF4A66; --gold:#FFC53D; --on-accent:#15191F;
+}
+
+/* ── 베이스 ───────────────────────────────────────── */
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Pretendard","Pretendard Variable",-apple-system,"Apple SD Gothic Neo",
+    "Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  color:var(--fg);
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:26px 26px;
+  -webkit-text-size-adjust:100%;
+  line-height:1.55;
+}
+.wrap{max-width:840px;margin:0 auto;padding:14px 14px 40px;}
+
+/* ── 상단 바 ──────────────────────────────────────── */
+.topbar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 12px;margin-bottom:14px;
+  background:var(--surface);
+  border:var(--stroke-w) solid var(--stroke);
+  border-radius:18px;
+  box-shadow:4px 4px 0 var(--shadow);
+}
+.brand{
+  font-size:15px;font-weight:900;letter-spacing:-.02em;
+  display:flex;align-items:center;gap:7px;
+}
+.brand .dot{
+  width:13px;height:13px;border-radius:50%;background:var(--lime);
+  border:2px solid var(--stroke);
+  animation:pulse 2.2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+.brand .tag{
+  font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;
+  background:var(--surface-2);border:2px solid var(--stroke);letter-spacing:.02em;
+}
+.hud{margin-left:auto;display:flex;align-items:center;gap:8px}
+.stars{
+  font-size:14px;font-weight:900;padding:5px 11px;border-radius:999px;
+  background:var(--gold);color:#15191F;border:2px solid var(--stroke);
+  font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.stars.bump{animation:bump .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bump{0%{transform:scale(1)}45%{transform:scale(1.3) rotate(-6deg)}100%{transform:scale(1)}}
+.iconbtn{
+  font:inherit;font-size:15px;cursor:pointer;
+  width:36px;height:36px;display:grid;place-items:center;
+  border-radius:12px;background:var(--surface-2);
+  border:2px solid var(--stroke);color:var(--fg);
+}
+.iconbtn:hover{background:var(--lime)}
+
+/* 진행 막대 */
+.steps{display:flex;gap:5px;width:100%;order:9}
+.steps i{
+  flex:1;height:11px;border-radius:999px;
+  background:var(--surface-2);border:2px solid var(--stroke);
+  transition:background .35s ease;
+}
+.steps i.on{background:var(--lime)}
+.steps i.now{background:var(--tang);animation:glow 1.4s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.55}}
+
+/* ── 카드 ─────────────────────────────────────────── */
+.card{
+  background:var(--surface);
+  border:var(--stroke-w) solid var(--stroke);
+  border-radius:var(--r-card);
+  box-shadow:7px 7px 0 var(--shadow);
+  padding:22px 20px;
+  animation:pop .38s cubic-bezier(.22,1.4,.4,1);
+}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+
+.eyebrow{
+  display:inline-block;font-size:12px;font-weight:900;letter-spacing:.08em;
+  padding:4px 11px;border-radius:999px;margin-bottom:12px;
+  border:2px solid var(--stroke);background:var(--lime);color:#15191F;
+}
+.eyebrow.sky{background:var(--sky);color:#fff}
+.eyebrow.tang{background:var(--tang);color:#fff}
+.eyebrow.gold{background:var(--gold);color:#15191F}
+.eyebrow.rose{background:var(--rose);color:#fff}
+
+h1{
+  font-size:clamp(28px,7vw,42px);line-height:1.12;margin:0 0 10px;
+  font-weight:900;letter-spacing:-.035em;text-wrap:balance;
+  text-shadow:3px 3px 0 var(--lime);
+}
+h2{
+  font-size:clamp(21px,4.6vw,27px);line-height:1.25;margin:0 0 8px;
+  font-weight:900;letter-spacing:-.03em;text-wrap:balance;
+}
+h3{font-size:17px;font-weight:900;margin:0 0 6px;letter-spacing:-.02em}
+p{margin:0 0 12px;font-size:16px}
+.lead{font-size:17px;color:var(--muted);font-weight:600}
+.small{font-size:13.5px;color:var(--muted)}
+b.hl{background:var(--lime);color:#15191F;padding:1px 5px;border-radius:6px;font-weight:900}
+
+/* ── 버튼 ─────────────────────────────────────────── */
+.btn{
+  font:inherit;font-weight:900;font-size:17px;cursor:pointer;
+  padding:14px 22px;border-radius:var(--r-btn);
+  border:var(--stroke-w) solid var(--stroke);
+  background:var(--lime);color:#15191F;
+  box-shadow:4px 4px 0 var(--shadow);
+  transition:transform .1s ease, box-shadow .1s ease;
+  letter-spacing:-.01em;
+}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--shadow)}
+.btn:active{transform:translate(4px,4px);box-shadow:0 0 0 var(--shadow)}
+.btn.ghost{background:var(--surface-2);color:var(--fg)}
+.btn.tang{background:var(--tang);color:#fff}
+.btn.sky{background:var(--sky);color:#fff}
+.btn.big{font-size:20px;padding:17px 30px;width:100%}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:4px 4px 0 var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.row.end{justify-content:flex-end}
+:focus-visible{outline:4px solid var(--tang);outline-offset:3px}
+
+/* ── 로봇 ─────────────────────────────────────────── */
+.bot{width:112px;height:112px;flex:none;display:block}
+.bot .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.08)}}
+.bot .ant{transform-box:fill-box;transform-origin:bottom center;animation:sway 2.6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+.botrow{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.bubble{
+  position:relative;background:var(--surface-2);
+  border:var(--stroke-w) solid var(--stroke);border-radius:18px;
+  padding:12px 15px;font-weight:800;font-size:16px;flex:1;min-width:0;
+}
+.bubble::after{
+  content:"";position:absolute;left:-11px;top:26px;
+  width:14px;height:14px;background:var(--surface-2);
+  border-left:var(--stroke-w) solid var(--stroke);
+  border-bottom:var(--stroke-w) solid var(--stroke);
+  transform:rotate(45deg);
+}
+
+/* ── 공용 조각 ────────────────────────────────────── */
+.panel{
+  background:var(--surface-2);border:var(--stroke-w) solid var(--stroke);
+  border-radius:16px;padding:14px;
+}
+.counter{
+  font-size:13px;font-weight:900;color:var(--muted);
+  letter-spacing:.04em;margin-bottom:10px;font-variant-numeric:tabular-nums;
+}
+.verdict{
+  margin-top:14px;padding:13px 15px;border-radius:16px;font-weight:800;font-size:15.5px;
+  border:var(--stroke-w) solid var(--stroke);
+  animation:pop .3s cubic-bezier(.22,1.4,.4,1);
+}
+.verdict.ok{background:var(--lime);color:#15191F}
+.verdict.no{background:var(--rose);color:#fff}
+.verdict.info{background:var(--sky);color:#fff}
+
+/* 1단계 */
+.qcard{
+  text-align:center;padding:22px 16px;border-radius:18px;
+  background:var(--surface-2);border:var(--stroke-w) solid var(--stroke);
+}
+.qcard .emo{font-size:64px;line-height:1;display:block;margin-bottom:10px}
+.qcard .txt{font-size:19px;font-weight:900;letter-spacing:-.02em;text-wrap:balance}
+.ox{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.ox .btn{width:100%;font-size:19px;padding:18px 10px}
+
+/* 2단계 */
+.zoo{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0}
+@media(max-width:460px){.zoo{grid-template-columns:repeat(3,1fr)}}
+.animal{
+  text-align:center;padding:11px 4px;border-radius:14px;
+  background:var(--surface-2);border:2px solid var(--stroke);
+  transition:opacity .35s ease, transform .35s ease;
+}
+.animal .e{font-size:34px;display:block;line-height:1.1}
+.animal .n{font-size:12px;font-weight:800;margin-top:3px}
+.animal.gone{opacity:.12;transform:scale(.72) rotate(-12deg)}
+.animal.win{background:var(--lime);border-color:var(--stroke);animation:bump .5s}
+.feats{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.feat{
+  font:inherit;font-size:15px;font-weight:800;cursor:pointer;
+  padding:10px 14px;border-radius:999px;
+  background:var(--surface);border:2px solid var(--stroke);color:var(--fg);
+  box-shadow:3px 3px 0 var(--shadow);
+}
+.feat:hover{background:var(--surface-2)}
+.feat[aria-pressed="true"]{background:var(--sky);color:#fff}
+.feat:active{transform:translate(3px,3px);box-shadow:none}
+
+/* 3단계 */
+.belt{
+  display:flex;align-items:center;justify-content:center;
+  height:150px;border-radius:16px;margin-bottom:12px;position:relative;overflow:hidden;
+  background:var(--surface-2);border:var(--stroke-w) solid var(--stroke);
+}
+.belt::before{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:22px;
+  background:repeating-linear-gradient(90deg,var(--stroke) 0 14px,transparent 14px 28px);
+  opacity:.28;
+}
+.belt .item{font-size:76px;line-height:1;animation:slidein .4s cubic-bezier(.2,1.3,.4,1)}
+@keyframes slidein{from{opacity:0;transform:translateX(64px) rotate(14deg)}to{opacity:1;transform:none}}
+.labelbtns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.labelbtns .btn{width:100%;font-size:18px}
+canvas.map{
+  width:100%;height:auto;display:block;border-radius:14px;
+  border:var(--stroke-w) solid var(--stroke);background:var(--surface);
+}
+.maplabel{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--muted);margin-top:6px}
+.testgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.tcell{
+  text-align:center;padding:10px 2px;border-radius:14px;
+  background:var(--surface-2);border:2px solid var(--stroke);
+}
+.tcell .e{font-size:32px;display:block;line-height:1.1}
+.tcell .g{font-size:11.5px;font-weight:800;margin-top:3px}
+.tcell.ok{background:var(--lime);color:#15191F}
+.tcell.no{background:var(--rose);color:#fff}
+.score{
+  font-size:44px;font-weight:900;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;line-height:1;
+}
+
+/* 4단계 */
+.mystery{
+  text-align:center;padding:20px;border-radius:18px;margin-bottom:12px;
+  background:var(--surface-2);border:var(--stroke-w) solid var(--stroke);
+}
+.mystery .e{font-size:80px;line-height:1;display:block}
+.thinking{font-weight:900;font-size:19px;margin-top:8px}
+.thinking .d{animation:dots 1.1s infinite}
+@keyframes dots{0%,20%{opacity:0}50%{opacity:1}100%{opacity:0}}
+
+/* 5단계 퀴즈 */
+.choice{
+  display:block;width:100%;text-align:left;font:inherit;font-size:16px;font-weight:800;
+  cursor:pointer;padding:14px 16px;border-radius:14px;margin-bottom:9px;
+  background:var(--surface-2);border:2px solid var(--stroke);color:var(--fg);
+  box-shadow:3px 3px 0 var(--shadow);
+}
+.choice:hover{background:var(--surface)}
+.choice.ok{background:var(--lime);color:#15191F}
+.choice.no{background:var(--rose);color:#fff}
+.choice:disabled{cursor:default}
+
+/* 수료증 */
+.cert{
+  text-align:center;padding:28px 20px;border-radius:20px;
+  background:var(--surface-2);border:5px double var(--stroke);
+}
+.cert .seal{
+  width:74px;height:74px;margin:0 auto 12px;border-radius:50%;
+  display:grid;place-items:center;font-size:34px;
+  background:var(--gold);border:var(--stroke-w) solid var(--stroke);
+  box-shadow:4px 4px 0 var(--shadow);
+}
+.cert .who{
+  font-size:clamp(26px,6vw,36px);font-weight:900;letter-spacing:-.03em;
+  margin:4px 0 6px;text-shadow:2px 2px 0 var(--lime);
+}
+.cert .lines{font-size:15px;font-weight:700;color:var(--muted)}
+.cert .date{margin-top:14px;font-size:13px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+input[type=text]{
+  font:inherit;font-size:18px;font-weight:800;width:100%;
+  padding:13px 15px;border-radius:14px;
+  background:var(--surface-2);color:var(--fg);
+  border:var(--stroke-w) solid var(--stroke);
+}
+input[type=text]::placeholder{color:var(--muted);font-weight:600}
+
+.recap{display:grid;gap:10px;margin:14px 0}
+.recap div{
+  padding:13px 15px;border-radius:14px;font-weight:800;font-size:15.5px;
+  background:var(--surface-2);border:2px solid var(--stroke);
+}
+.recap span{
+  display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;
+  background:var(--lime);color:#15191F;font-weight:900;font-size:14px;
+  border:2px solid var(--stroke);margin-right:9px;vertical-align:-6px;
+}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+.foot{text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;font-weight:600}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+@media print{
+  body{background:#fff}
+  .topbar,.row,.foot,#confetti{display:none !important}
+  .card{box-shadow:none;border:2px solid #000}
+}
+</style>
+
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span>뽀삐 AI 연구소 <span class="tag">3·4학년</span></div>
+    <div class="hud">
+      <span class="stars" id="stars">⭐ 0</span>
+      <button class="iconbtn" id="sound" aria-label="소리 켜기 끄기">🔊</button>
+    </div>
+    <div class="steps" id="steps" aria-hidden="true"></div>
+  </header>
+
+  <main id="stage" aria-live="polite"></main>
+
+  <p class="foot">초등 3·4학년 AI 캠프 · 20분 체험 활동</p>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ── 상태 ─────────────────────────────────────────── */
+const S = { name:"", stars:0, step:0, sound:true, model:null, labels:[] };
+const stage = document.getElementById("stage");
+const starsEl = document.getElementById("stars");
+const stepsEl = document.getElementById("steps");
+
+for (let i=0;i<5;i++) stepsEl.appendChild(document.createElement("i"));
+
+function setStep(n){
+  S.step = n;
+  [...stepsEl.children].forEach((el,i)=>{
+    el.className = i < n ? "on" : (i === n ? "now" : "");
+  });
+}
+function addStar(n=1){
+  S.stars += n;
+  starsEl.textContent = "⭐ " + S.stars;
+  starsEl.classList.remove("bump");
+  void starsEl.offsetWidth;
+  starsEl.classList.add("bump");
+}
+
+/* ── 소리 ─────────────────────────────────────────── */
+let actx = null;
+function tone(freq, dur=.1, type="square", vol=.05){
+  if (!S.sound) return;
+  try{
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + dur);
+  }catch(e){/* 소리는 없어도 진행에 지장 없음 */}
+}
+const sfx = {
+  tap:  () => tone(520,.06,"square",.04),
+  yes:  () => { tone(660,.09); setTimeout(()=>tone(990,.14),80); },
+  no:   () => { tone(220,.14,"sawtooth",.04); },
+  learn:() => { tone(440,.06); setTimeout(()=>tone(587,.06),60); setTimeout(()=>tone(880,.12),120); },
+  win:  () => [523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,.16,"triangle",.06), i*110))
+};
+document.getElementById("sound").addEventListener("click", e => {
+  S.sound = !S.sound;
+  e.currentTarget.textContent = S.sound ? "🔊" : "🔇";
+  if (S.sound) sfx.tap();
+});
+
+/* ── 로봇 ─────────────────────────────────────────── */
+function bot(mood="happy"){
+  const mouths = {
+    happy:  '<path d="M40 74 Q56 88 72 74" fill="none" stroke="#15191F" stroke-width="5" stroke-linecap="round"/>',
+    think:  '<circle cx="56" cy="77" r="6" fill="none" stroke="#15191F" stroke-width="5"/>',
+    wow:    '<ellipse cx="56" cy="77" rx="11" ry="13" fill="#15191F"/>',
+    sad:    '<path d="M42 82 Q56 70 70 82" fill="none" stroke="#15191F" stroke-width="5" stroke-linecap="round"/>'
+  };
+  return `<svg class="bot" viewBox="0 0 112 112" role="img" aria-label="로봇 뽀삐">
+    <g class="ant"><line x1="56" y1="18" x2="56" y2="6" stroke="#15191F" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="56" cy="5" r="6" fill="var(--tang)" stroke="#15191F" stroke-width="3.5"/></g>
+    <rect x="12" y="18" width="88" height="82" rx="24" fill="var(--lime)" stroke="#15191F" stroke-width="4"/>
+    <rect x="24" y="34" width="64" height="30" rx="14" fill="#FFFFFF" stroke="#15191F" stroke-width="4"/>
+    <circle class="eye" cx="42" cy="49" r="7" fill="#15191F"/>
+    <circle class="eye" cx="70" cy="49" r="7" fill="#15191F"/>
+    ${mouths[mood] || mouths.happy}
+  </svg>`;
+}
+function say(text, mood="happy"){
+  return `<div class="botrow">${bot(mood)}<div class="bubble">${text}</div></div>`;
+}
+
+/* ── 화면 전환 ────────────────────────────────────── */
+function render(html){
+  stage.innerHTML = html;
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function on(sel, ev, fn){ stage.querySelectorAll(sel).forEach(el => el.addEventListener(ev, fn)); }
+
+/* ══════════════════════════════════════════════════
+   시작 화면
+   ══════════════════════════════════════════════════ */
+function screenIntro(){
+  setStep(0);
+  render(`<div class="card">
+    <span class="eyebrow">오늘의 미션</span>
+    <h1>로봇 뽀삐를<br>똑똑하게 만들어 줘!</h1>
+    <p class="lead">뽀삐는 아직 아무것도 몰라요. 여러분이 가르쳐 주면 뽀삐는 <b class="hl">스스로 배우는 AI</b>가 됩니다.</p>
+    ${say("안녕! 난 뽀삐야. 나는 태어날 때부터 똑똑한 게 아니야.<br>사람이 예시를 보여줘야 배울 수 있어!","happy")}
+    <div style="margin-top:16px">
+      <label for="nm" style="font-weight:900;font-size:15px;display:block;margin-bottom:7px">연구원 이름을 적어 주세요</label>
+      <input type="text" id="nm" maxlength="12" placeholder="예) 김하늘" autocomplete="off">
+    </div>
+    <div class="row"><button class="btn big" id="go">연구소 문 열기 🔓</button></div>
+    <p class="small" style="margin-top:12px;margin-bottom:0">활동 5개 · 약 20분 · 별을 모으면 수료증을 받아요</p>
+  </div>`);
+  on("#go","click",()=>{
+    S.name = (stage.querySelector("#nm").value || "").trim() || "이름 없는 연구원";
+    sfx.learn(); screen1();
+  });
+}
+
+/* ══════════════════════════════════════════════════
+   1단계 — 이건 AI일까?
+   ══════════════════════════════════════════════════ */
+const AI_ITEMS = [
+  {e:"📺", t:"유튜브가 내가 좋아할 영상을 알아서 골라 줘요", ai:true,
+   why:"내가 본 영상을 잔뜩 보고 취향을 <b>배웠어요</b>. 그래서 AI예요!"},
+  {e:"🧮", t:"계산기가 12 × 8을 계산해요", ai:false,
+   why:"정해진 계산 규칙만 따라요. 새로 배우는 게 없으니 AI가 아니에요."},
+  {e:"📱", t:"휴대폰이 내 얼굴을 보고 잠금을 풀어요", ai:true,
+   why:"수많은 얼굴 사진을 보고 <b>얼굴의 특징</b>을 배웠어요. AI 맞아요!"},
+  {e:"🚪", t:"마트 자동문이 사람이 오면 열려요", ai:false,
+   why:"'움직임이 있으면 연다' 규칙 하나뿐이에요. 배우지 않아요."},
+  {e:"🗣️", t:"스피커에게 말하면 알아듣고 노래를 틀어 줘요", ai:true,
+   why:"아주 많은 사람의 목소리를 듣고 <b>말소리</b>를 배웠어요. AI!"},
+  {e:"🥤", t:"자판기에 500원을 넣으면 음료가 나와요", ai:false,
+   why:"동전을 세는 규칙만 있어요. 어제와 오늘이 똑같아요."}
+];
+
+function screen1(){
+  setStep(0);
+  let i = 0, correct = 0;
+
+  function draw(){
+    const q = AI_ITEMS[i];
+    render(`<div class="card">
+      <span class="eyebrow sky">활동 1</span>
+      <h2>이건 AI일까요?</h2>
+      <p class="lead">AI는 <b class="hl">스스로 배우는</b> 컴퓨터예요. 그냥 규칙만 따르는 기계는 AI가 아니랍니다.</p>
+      <div class="counter">${i+1} / ${AI_ITEMS.length} 문제</div>
+      <div class="qcard">
+        <span class="emo">${q.e}</span>
+        <span class="txt">${q.t}</span>
+      </div>
+      <div class="ox">
+        <button class="btn" data-a="1">⭕ AI 맞아요</button>
+        <button class="btn ghost" data-a="0">❌ AI 아니에요</button>
+      </div>
+      <div id="fb"></div>
+    </div>`);
+    on("[data-a]","click", e => {
+      const ans = e.currentTarget.dataset.a === "1";
+      const ok = ans === q.ai;
+      if (ok){ correct++; addStar(); sfx.yes(); } else sfx.no();
+      stage.querySelectorAll("[data-a]").forEach(b => b.disabled = true);
+      stage.querySelector("#fb").innerHTML =
+        `<div class="verdict ${ok?"ok":"no"}">${ok?"딩동댕! 🎉":"아쉬워요!"} ${q.why}</div>
+         <div class="row end"><button class="btn" id="nx">${i===AI_ITEMS.length-1?"다음 활동으로 →":"다음 문제 →"}</button></div>`;
+      stage.querySelector("#nx").addEventListener("click", ()=>{
+        sfx.tap(); i++;
+        if (i < AI_ITEMS.length) draw(); else done();
+      });
+    });
+  }
+  function done(){
+    render(`<div class="card">
+      <span class="eyebrow sky">활동 1 완료</span>
+      <h2>${correct} / ${AI_ITEMS.length} 맞혔어요!</h2>
+      ${say("이제 알겠지? <b>AI = 스스로 배우는 컴퓨터</b>.<br>그런데 나는 대체 뭘 보고 배우는 걸까?","think")}
+      <div class="row"><button class="btn big" id="nx">뽀삐의 눈 들여다보기 👀</button></div>
+    </div>`);
+    on("#nx","click",()=>{ sfx.learn(); screen2(); });
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════
+   2단계 — 특징으로 찾아내기
+   ══════════════════════════════════════════════════ */
+const ANIMALS = [
+  {e:"🐘", n:"코끼리", f:["leg4","big"]},
+  {e:"🦒", n:"기린",   f:["leg4","neck","big"]},
+  {e:"🐸", n:"개구리", f:["leg4","water"]},
+  {e:"🐧", n:"펭귄",   f:["wing","water","feather"]},
+  {e:"🦅", n:"독수리", f:["wing","feather","fly"]},
+  {e:"🐝", n:"벌",     f:["wing","fly"]},
+  {e:"🐟", n:"물고기", f:["water"]},
+  {e:"🐍", n:"뱀",     f:[]}
+];
+const FEATS = [
+  {k:"leg4",   label:"다리가 4개예요"},
+  {k:"wing",   label:"날개가 있어요"},
+  {k:"water",  label:"물속에서 지내요"},
+  {k:"fly",    label:"하늘을 날아요"},
+  {k:"neck",   label:"목이 길어요"},
+  {k:"big",    label:"몸집이 아주 커요"}
+];
+const ROUNDS = [
+  {target:"펭귄", hint:"날개가 있는데 하늘은 못 날고, 물속을 헤엄쳐요."},
+  {target:"개구리", hint:"다리가 4개인데 물에서도 지내요."}
+];
+
+function screen2(){
+  setStep(1);
+  let r = 0, picked = new Set();
+
+  function draw(){
+    const round = ROUNDS[r];
+    render(`<div class="card">
+      <span class="eyebrow tang">활동 2</span>
+      <h2>특징으로 찾아내요</h2>
+      <p class="lead">AI는 사진을 '보는' 게 아니라 <b class="hl">특징</b>을 확인해요. 특징을 하나씩 알려 주면 답이 좁혀집니다.</p>
+      ${say(`이번엔 <b>${round.target}</b>을(를) 찾아야 해. ${round.hint}<br>${round.target}이(가) 가진 특징만 눌러 줘!`,"think")}
+      <div class="counter" id="cnt"></div>
+      <div class="zoo" id="zoo">
+        ${ANIMALS.map(a=>`<div class="animal" data-n="${a.n}"><span class="e">${a.e}</span><span class="n">${a.n}</span></div>`).join("")}
+      </div>
+      <div class="feats">
+        ${FEATS.map(f=>`<button class="feat" data-k="${f.k}" aria-pressed="false">${f.label}</button>`).join("")}
+      </div>
+      <div id="fb"></div>
+      <div class="row"><button class="btn ghost" id="reset">🔄 처음부터 다시</button></div>
+    </div>`);
+
+    on(".feat","click", e => {
+      const k = e.currentTarget.dataset.k;
+      if (picked.has(k)) picked.delete(k); else picked.add(k);
+      e.currentTarget.setAttribute("aria-pressed", picked.has(k) ? "true" : "false");
+      sfx.tap(); update();
+    });
+    on("#reset","click", ()=>{ picked = new Set(); sfx.tap(); draw(); });
+    update();
+  }
+
+  function update(){
+    const round = ROUNDS[r];
+    const keep = ANIMALS.filter(a => [...picked].every(k => a.f.includes(k)));
+    stage.querySelectorAll(".animal").forEach(el=>{
+      const alive = keep.some(a => a.n === el.dataset.n);
+      el.classList.toggle("gone", !alive);
+      el.classList.toggle("win", alive && keep.length === 1 && keep[0].n === round.target);
+    });
+    stage.querySelector("#cnt").textContent =
+      `고른 특징 ${picked.size}개 · 남은 후보 ${keep.length}마리`;
+
+    const fb = stage.querySelector("#fb");
+    const targetAlive = keep.some(a => a.n === round.target);
+
+    if (!targetAlive){
+      fb.innerHTML = `<div class="verdict no">앗! ${round.target}은(는) 그 특징이 없어서 사라졌어요. 특징을 다시 골라 볼까요?</div>`;
+      return;
+    }
+    if (keep.length === 1){
+      sfx.yes(); addStar(2);
+      fb.innerHTML = `<div class="verdict ok">정답! 특징 ${picked.size}개를 합치니 딱 하나만 남았어요.
+        ${picked.size >= 2 ? "특징 <b>하나만으로는 부족</b>했죠? AI도 여러 특징을 한꺼번에 봐요." : ""}</div>
+        <div class="row end"><button class="btn" id="nx">${r===ROUNDS.length-1?"다음 활동으로 →":"다음 문제 →"}</button></div>`;
+      stage.querySelector("#nx").addEventListener("click", ()=>{
+        sfx.tap(); r++; picked = new Set();
+        if (r < ROUNDS.length) draw(); else finish();
+      });
+      return;
+    }
+    fb.innerHTML = keep.length > 1 && picked.size > 0
+      ? `<div class="verdict info">아직 ${keep.length}마리가 남았어요. 특징을 더 알려 주세요!</div>` : "";
+  }
+
+  function finish(){
+    render(`<div class="card">
+      <span class="eyebrow tang">활동 2 완료</span>
+      <h2>AI의 비밀 무기 = 특징</h2>
+      ${say("난 색깔, 모양, 길이 같은 <b>특징</b>을 숫자로 바꿔서 기억해.<br>이제 진짜로 나를 가르쳐 볼래?","happy")}
+      <div class="row"><button class="btn big" id="nx">뽀삐 가르치러 가기 🎓</button></div>
+    </div>`);
+    on("#nx","click",()=>{ sfx.learn(); screen3(); });
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════
+   3단계 — 뽀삐를 직접 가르치기 (진짜 분류기)
+   x = 길쭉한 정도(0 동그람 → 1 길쭉),  y = 노란 정도(0 빨강 → 1 노랑)
+   ══════════════════════════════════════════════════ */
+const TRAIN = [
+  {e:"🍎", x:.18, y:.06}, {e:"🍌", x:.86, y:.90}, {e:"🍏", x:.21, y:.44},
+  {e:"🍌", x:.90, y:.84}, {e:"🍎", x:.24, y:.11}, {e:"🍌", x:.81, y:.94},
+  {e:"🍏", x:.16, y:.38}, {e:"🍌", x:.88, y:.79}, {e:"🍎", x:.22, y:.04},
+  {e:"🍌", x:.92, y:.88}, {e:"🍎", x:.20, y:.15}, {e:"🍌", x:.84, y:.92}
+];
+const TEST = [
+  {e:"🍎", x:.19, y:.08, real:"사과"},
+  {e:"🍏", x:.23, y:.47, real:"사과"},
+  {e:"🍌", x:.87, y:.86, real:"바나나"},
+  {e:"🍌", x:.83, y:.93, real:"바나나"},
+  {e:"🍎", x:.25, y:.13, real:"사과"}
+];
+
+/* 가장 가까운 중심점 분류기 — 아이가 붙인 라벨로 진짜 학습합니다 */
+function train(labels){
+  const groups = {};
+  labels.forEach(p => (groups[p.label] = groups[p.label] || []).push(p));
+  const centers = {};
+  for (const k in groups){
+    const g = groups[k];
+    centers[k] = { x: g.reduce((s,p)=>s+p.x,0)/g.length, y: g.reduce((s,p)=>s+p.y,0)/g.length };
+  }
+  return centers;
+}
+function predict(model, p){
+  let best = null, bd = Infinity;
+  for (const k in model){
+    const c = model[k], d = (c.x-p.x)**2 + (c.y-p.y)**2;
+    if (d < bd){ bd = d; best = k; }
+  }
+  return best;
+}
+
+function drawMap(cv, labels, model, extra){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = cv.clientWidth || 320, H = Math.round(W * 0.62);
+  cv.width = W * dpr; cv.height = H * dpr;
+  cv.style.height = H + "px";
+  const g = cv.getContext("2d");
+  g.setTransform(dpr,0,0,dpr,0,0);
+  const cs = getComputedStyle(document.documentElement);
+  const fg = cs.getPropertyValue("--fg").trim() || "#15191F";
+  const pad = 26;
+  const px = v => pad + v * (W - pad*2);
+  const py = v => (H - pad) - v * (H - pad*2);
+
+  g.clearRect(0,0,W,H);
+  g.strokeStyle = fg; g.globalAlpha = .12; g.lineWidth = 1;
+  for (let i=1;i<5;i++){
+    g.beginPath(); g.moveTo(px(i/5), py(0)); g.lineTo(px(i/5), py(1)); g.stroke();
+    g.beginPath(); g.moveTo(px(0), py(i/5)); g.lineTo(px(1), py(i/5)); g.stroke();
+  }
+  g.globalAlpha = 1;
+  g.lineWidth = 2.5; g.strokeStyle = fg;
+  g.beginPath(); g.moveTo(px(0), py(0)); g.lineTo(px(1), py(0)); g.stroke();
+  g.beginPath(); g.moveTo(px(0), py(0)); g.lineTo(px(0), py(1)); g.stroke();
+
+  /* 두 무리 사이 경계선 (수직 이등분선) */
+  const keys = Object.keys(model || {});
+  if (keys.length === 2){
+    const a = model[keys[0]], b = model[keys[1]];
+    const mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+    const dx = b.x-a.x, dy = b.y-a.y;
+    const pts = [];
+    if (Math.abs(dy) > 1e-6) [0,1].forEach(X => pts.push([X, my - dx*(X-mx)/dy]));
+    if (Math.abs(dx) > 1e-6) [0,1].forEach(Y => pts.push([mx - dy*(Y-my)/dx, Y]));
+    const inside = pts.filter(p => p[0] >= -.01 && p[0] <= 1.01 && p[1] >= -.01 && p[1] <= 1.01);
+    if (inside.length >= 2){
+      g.save(); g.setLineDash([8,6]); g.lineWidth = 3.5;
+      g.strokeStyle = cs.getPropertyValue("--tang").trim() || "#FF7A2F";
+      g.beginPath(); g.moveTo(px(inside[0][0]), py(inside[0][1]));
+      g.lineTo(px(inside[1][0]), py(inside[1][1])); g.stroke(); g.restore();
+    }
+  }
+
+  g.font = "22px system-ui, sans-serif";
+  g.textAlign = "center"; g.textBaseline = "middle";
+  labels.forEach(p => g.fillText(p.e, px(p.x), py(p.y)));
+  if (extra){
+    g.save();
+    g.strokeStyle = cs.getPropertyValue("--rose").trim() || "#FF4A66";
+    g.lineWidth = 3.5;
+    g.beginPath(); g.arc(px(extra.x), py(extra.y), 19, 0, Math.PI*2); g.stroke();
+    g.font = "26px system-ui, sans-serif";
+    g.fillText(extra.e, px(extra.x), py(extra.y));
+    g.restore();
+  }
+}
+
+function screen3(){
+  setStep(2);
+  let i = 0;
+  S.labels = [];
+
+  function draw(){
+    if (i >= TRAIN.length) return quiz();
+    const it = TRAIN[i];
+    render(`<div class="card">
+      <span class="eyebrow">활동 3 · 핵심</span>
+      <h2>뽀삐를 직접 가르쳐요</h2>
+      <p class="lead">과일이 하나씩 지나갑니다. <b class="hl">사과인지 바나나인지</b> 알려 주세요. 뽀삐는 여러분이 알려 준 대로 배웁니다.</p>
+      <div class="counter">가르친 개수 ${i} / ${TRAIN.length}</div>
+      <div class="belt"><span class="item">${it.e}</span></div>
+      <div class="labelbtns">
+        <button class="btn tang" data-l="사과">🍎 사과!</button>
+        <button class="btn" data-l="바나나" style="background:var(--gold)">🍌 바나나!</button>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <h3>뽀삐의 특징 지도</h3>
+        <p class="small" style="margin-bottom:8px">알려 줄 때마다 점이 찍혀요. 비슷한 것끼리 <b>무리</b>가 생기는지 보세요!</p>
+        <canvas class="map" id="map"></canvas>
+        <div class="maplabel"><span>↑ 위로 갈수록 노랑</span><span>오른쪽으로 갈수록 길쭉 →</span></div>
+      </div>
+    </div>`);
+    drawMap(stage.querySelector("#map"), S.labels, S.labels.length >= 2 ? train(S.labels) : null);
+    on("[data-l]","click", e => {
+      S.labels.push({ ...it, label: e.currentTarget.dataset.l });
+      sfx.learn(); i++; draw();
+    });
+  }
+
+  function quiz(){
+    S.model = train(S.labels);
+    addStar(3);
+    render(`<div class="card">
+      <span class="eyebrow">학습 완료</span>
+      <h2>이제 시험을 봅니다</h2>
+      ${say("12개를 다 배웠어! 이제 <b>처음 보는 과일</b>로 시험을 볼게.<br>내가 잘 배웠을까?","think")}
+      <div class="panel">
+        <h3>뽀삐가 그은 선</h3>
+        <p class="small" style="margin-bottom:8px">주황색 점선이 뽀삐가 스스로 찾아낸 <b>사과와 바나나의 경계</b>예요.</p>
+        <canvas class="map" id="map"></canvas>
+        <div class="maplabel"><span>↑ 위로 갈수록 노랑</span><span>오른쪽으로 갈수록 길쭉 →</span></div>
+      </div>
+      <div class="row"><button class="btn big" id="go">시험 시작! 📝</button></div>
+    </div>`);
+    drawMap(stage.querySelector("#map"), S.labels, S.model);
+    on("#go","click", ()=>{ sfx.tap(); results(); });
+  }
+
+  function results(){
+    const out = TEST.map(t => ({ ...t, guess: predict(S.model, t) }));
+    const hit = out.filter(o => o.guess === o.real).length;
+    const pct = Math.round(hit / TEST.length * 100);
+    const perfect = hit === TEST.length;
+    if (perfect){ addStar(3); sfx.win(); } else { addStar(1); sfx.yes(); }
+
+    render(`<div class="card">
+      <span class="eyebrow">활동 3 결과</span>
+      <h2>뽀삐의 점수는?</h2>
+      <div class="testgrid">
+        ${out.map(o=>`<div class="tcell ${o.guess===o.real?"ok":"no"}">
+          <span class="e">${o.e}</span><span class="g">${o.guess}<br>${o.guess===o.real?"⭕":"❌"}</span></div>`).join("")}
+      </div>
+      <div class="panel" style="display:flex;align-items:center;gap:16px">
+        <div><div class="score">${pct}점</div><div class="small">5개 중 ${hit}개 정답</div></div>
+        <div style="font-size:15px;font-weight:800">${perfect
+          ? "완벽해요! 여러분이 <b>정확하게</b> 가르쳐 준 덕분이에요."
+          : "몇 개를 틀렸네요. 잘못 알려 주면 AI도 잘못 배워요!"}</div>
+      </div>
+      ${say("나는 마법을 쓴 게 아니야. 너희가 준 <b>예시(데이터)</b>를 보고<br>사과 무리와 바나나 무리를 나누는 선을 찾았을 뿐이야.","happy")}
+      <div class="row"><button class="btn big" id="nx">뽀삐의 약점 알아보기 🔍</button></div>
+    </div>`);
+    on("#nx","click", ()=>{ sfx.tap(); screen4(); });
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════
+   4단계 — AI도 실수해요 (배우지 않은 것)
+   ══════════════════════════════════════════════════ */
+const GRAPE = { e:"🍇", x:.30, y:.52 };
+const GRAPE_TRAIN = [
+  {e:"🍇", x:.28, y:.50, label:"포도"},
+  {e:"🍇", x:.33, y:.55, label:"포도"},
+  {e:"🍇", x:.30, y:.47, label:"포도"}
+];
+
+function screen4(){
+  setStep(3);
+  if (!S.model) S.model = train(TRAIN.map(t=>({...t, label: t.e==="🍌" ? "바나나" : "사과"})));
+
+  function ask(){
+    render(`<div class="card">
+      <span class="eyebrow rose">활동 4</span>
+      <h2>안 배운 걸 보여 주면?</h2>
+      <p class="lead">뽀삐는 사과와 바나나만 배웠어요. 그런데 <b class="hl">포도</b>를 보여 주면 어떻게 될까요?</p>
+      <div class="mystery"><span class="e">🍇</span><div class="thinking">뽀삐가 뭐라고 할까요?</div></div>
+      <div class="row"><button class="btn big" id="go">뽀삐에게 보여 주기 👀</button></div>
+    </div>`);
+    on("#go","click", ()=>{ sfx.tap(); thinking(); });
+  }
+
+  function thinking(){
+    render(`<div class="card">
+      <span class="eyebrow rose">활동 4</span>
+      <h2>뽀삐가 생각 중…</h2>
+      <div class="mystery"><span class="e">🍇</span>
+        <div class="thinking">음<span class="d">…</span><span class="d" style="animation-delay:.25s">…</span><span class="d" style="animation-delay:.5s">…</span></div>
+      </div>
+    </div>`);
+    tone(330,.1,"sine",.04);
+    setTimeout(reveal, 1500);
+  }
+
+  function reveal(){
+    const g = predict(S.model, GRAPE);
+    sfx.no();
+    render(`<div class="card">
+      <span class="eyebrow rose">활동 4</span>
+      <h2>뽀삐: "${g}!"</h2>
+      ${say(`이건 분명히 <b>${g}</b>야! ...아니라고?`,"wow")}
+      <div class="verdict no">뽀삐는 <b>포도를 배운 적이 없어요.</b> 그래서 아는 것 중에 제일 비슷한 걸 골랐어요.
+        AI는 "모르겠어요"라고 말하지 않고 <b>아는 척</b>할 때가 있답니다.</div>
+      <div class="panel" style="margin-top:14px">
+        <h3>지도에서 보면</h3>
+        <p class="small" style="margin-bottom:8px">빨간 동그라미가 포도예요. 사과 무리 쪽에 더 가깝죠?</p>
+        <canvas class="map" id="map"></canvas>
+      </div>
+      <div class="row"><button class="btn big" id="fix">포도도 가르쳐 주기 🍇</button></div>
+    </div>`);
+    drawMap(stage.querySelector("#map"), S.labels.length ? S.labels : [], S.model, GRAPE);
+    on("#fix","click", ()=>{
+      S.labels = S.labels.concat(GRAPE_TRAIN);
+      S.model = train(S.labels);
+      sfx.learn(); setTimeout(fixed, 400);
+    });
+  }
+
+  function fixed(){
+    const g = predict(S.model, GRAPE);
+    addStar(3); sfx.win();
+    render(`<div class="card">
+      <span class="eyebrow">활동 4 완료</span>
+      <h2>뽀삐: "${g}!" 🎉</h2>
+      ${say("고마워! 포도를 배우니까 이제 알겠어.<br>내가 똑똑해지는 건 전부 <b>너희가 가르쳐 준 덕분</b>이야.","happy")}
+      <div class="verdict ok">AI는 <b>배운 것만</b> 알아요. 그래서 사람이 좋은 예시를 <b>골고루, 많이</b> 보여 줘야 해요.
+        한 가지만 잔뜩 가르치면 AI는 한쪽으로 치우친 답만 하게 됩니다.</div>
+      <div class="row"><button class="btn big" id="nx">마지막 미션으로 →</button></div>
+    </div>`);
+    on("#nx","click", ()=>{ sfx.tap(); screen5(); });
+  }
+  ask();
+}
+
+/* ══════════════════════════════════════════════════
+   5단계 — 정리 퀴즈
+   ══════════════════════════════════════════════════ */
+const QUIZ = [
+  { q:"AI는 어떻게 똑똑해질까요?",
+    c:["사람이 예시를 많이 보여 주면 스스로 배워요","태어날 때부터 세상 모든 걸 알고 있어요","마법 가루를 뿌리면 똑똑해져요"],
+    a:0, why:"맞아요! AI는 예시(데이터)를 보고 규칙을 스스로 찾아냅니다." },
+  { q:"사과와 바나나만 배운 AI에게 포도를 보여 주면?",
+    c:["정확하게 '포도'라고 답해요","모른다고 하지 않고 둘 중 하나로 답할 수 있어요","전원이 꺼져 버려요"],
+    a:1, why:"배운 적 없는 건 몰라요. 그래도 아는 척 답할 수 있어서 조심해야 해요." },
+  { q:"AI가 사물을 구분할 때 무엇을 볼까요?",
+    c:["사물의 이름표","색깔·모양·길이 같은 특징","사물의 기분"],
+    a:1, why:"특징을 숫자로 바꿔서 비슷한 것끼리 무리를 짓는답니다." }
+];
+
+function screen5(){
+  setStep(4);
+  let i = 0, right = 0;
+
+  function draw(){
+    const q = QUIZ[i];
+    render(`<div class="card">
+      <span class="eyebrow gold">마지막 미션</span>
+      <h2>AI 박사 퀴즈</h2>
+      <div class="counter">${i+1} / ${QUIZ.length} 문제</div>
+      <h3 style="font-size:19px;margin:10px 0 12px">${q.q}</h3>
+      ${q.c.map((c,n)=>`<button class="choice" data-n="${n}">${"①②③"[n]} ${c}</button>`).join("")}
+      <div id="fb"></div>
+    </div>`);
+    on(".choice","click", e => {
+      const n = +e.currentTarget.dataset.n, ok = n === q.a;
+      stage.querySelectorAll(".choice").forEach((b,idx)=>{
+        b.disabled = true;
+        if (idx === q.a) b.classList.add("ok");
+        else if (idx === n) b.classList.add("no");
+      });
+      if (ok){ right++; addStar(2); sfx.yes(); } else sfx.no();
+      stage.querySelector("#fb").innerHTML =
+        `<div class="verdict ${ok?"ok":"no"}">${ok?"정답!":"정답은 "+"①②③"[q.a]+"번!"} ${q.why}</div>
+         <div class="row end"><button class="btn" id="nx">${i===QUIZ.length-1?"수료증 받기 🏅":"다음 문제 →"}</button></div>`;
+      stage.querySelector("#nx").addEventListener("click", ()=>{
+        sfx.tap(); i++;
+        if (i < QUIZ.length) draw(); else certificate(right);
+      });
+    });
+  }
+  draw();
+}
+
+/* ══════════════════════════════════════════════════
+   수료증
+   ══════════════════════════════════════════════════ */
+function certificate(right){
+  setStep(5);
+  sfx.win(); confetti();
+  const d = new Date();
+  const date = `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+  render(`<div class="card">
+    <div class="cert">
+      <div class="seal">🏅</div>
+      <div class="small" style="font-weight:900;letter-spacing:.1em">AI 연구원 수료증</div>
+      <div class="who">${escapeHtml(S.name)}</div>
+      <div class="lines">
+        위 연구원은 뽀삐 AI 연구소의 모든 활동을 마치고<br>
+        <b>AI가 배우는 방법</b>을 훌륭하게 알아냈으므로<br>이 증서를 드립니다.
+      </div>
+      <div class="date">별 ${S.stars}개 · 퀴즈 ${right}/${QUIZ.length} · ${date}</div>
+    </div>
+
+    <h2 style="margin-top:22px">오늘 배운 것 3가지</h2>
+    <div class="recap">
+      <div><span>1</span>AI는 <b>스스로 배우는</b> 컴퓨터예요. 규칙만 따르는 기계와는 달라요.</div>
+      <div><span>2</span>AI는 색·모양 같은 <b>특징</b>을 보고 비슷한 것끼리 무리를 지어요.</div>
+      <div><span>3</span>AI는 <b>배운 것만</b> 알아요. 사람이 좋은 예시를 많이 줘야 똑똑해져요.</div>
+    </div>
+    ${say("오늘 정말 고마웠어! 다음엔 더 어려운 것도 가르쳐 줘. 안녕! 👋","happy")}
+    <div class="row">
+      <button class="btn" id="print">🖨️ 수료증 인쇄하기</button>
+      <button class="btn ghost" id="again">🔄 처음부터 다시</button>
+    </div>
+  </div>`);
+  on("#print","click", ()=>window.print());
+  on("#again","click", ()=>{ S.stars=0; S.labels=[]; S.model=null; starsEl.textContent="⭐ 0"; screenIntro(); });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ── 색종이 ───────────────────────────────────────── */
+function confetti(){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.getElementById("confetti"), g = cv.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = innerWidth*dpr; cv.height = innerHeight*dpr; g.setTransform(dpr,0,0,dpr,0,0);
+  const cs = getComputedStyle(document.documentElement);
+  const cols = ["--lime","--tang","--sky","--gold","--rose"].map(k=>cs.getPropertyValue(k).trim());
+  const bits = Array.from({length:110}, () => ({
+    x: innerWidth/2 + (Math.random()-.5)*160, y: innerHeight*.35,
+    vx:(Math.random()-.5)*11, vy: Math.random()*-13 - 4,
+    w: 7+Math.random()*8, h: 5+Math.random()*7,
+    c: cols[(Math.random()*cols.length)|0], r: Math.random()*6, vr:(Math.random()-.5)*.35
+  }));
+  let t = 0;
+  (function loop(){
+    t++; g.clearRect(0,0,innerWidth,innerHeight);
+    bits.forEach(b=>{
+      b.vy += .38; b.x += b.vx; b.y += b.vy; b.r += b.vr;
+      g.save(); g.translate(b.x,b.y); g.rotate(b.r);
+      g.fillStyle = b.c; g.fillRect(-b.w/2,-b.h/2,b.w,b.h); g.restore();
+    });
+    if (t < 220) requestAnimationFrame(loop); else g.clearRect(0,0,innerWidth,innerHeight);
+  })();
+}
+
+/* ── 시작 ─────────────────────────────────────────── */
+screenIntro();
+})();
+</script>
